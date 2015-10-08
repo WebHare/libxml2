@@ -148,6 +148,12 @@ static int xmlCheckDTD = 1;
  ************************************************************************/
 #include <libxml/hash.h>
 
+
+/* forward declaration needed by xmlCopyDoc */
+static xmlNsPtr
+xmlTreeEnsureXMLDecl(xmlDocPtr doc);
+
+
 #ifdef LIBXML_TREE_ENABLED
 /**
  * xmlGetEntityFromDtd:
@@ -4544,8 +4550,10 @@ xmlCopyDoc(xmlDocPtr doc, int recursive) {
 	ret->intSubset->parent = ret;
     }
 #endif
-    if (doc->oldNs != NULL)
-        ret->oldNs = xmlCopyNamespaceList(doc->oldNs);
+    if (doc->oldNs != NULL) {
+        xmlTreeEnsureXMLDecl(ret);
+        ret->oldNs->next = xmlCopyNamespaceList(doc->oldNs);
+    }
     if (doc->children != NULL) {
 	xmlNodePtr tmp;
 
